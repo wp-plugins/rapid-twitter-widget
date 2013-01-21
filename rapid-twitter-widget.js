@@ -9,8 +9,8 @@ RapidTwitter.script = function(RapidTwitter, window, document) {
 			return;
 		}
 		
-		var ids = api.widgets,
-			ids_el = ids.length,
+		var widgets = api.widgets,
+			widgets_len = widgets.length,
 			the_html = '';
 
 
@@ -76,20 +76,14 @@ RapidTwitter.script = function(RapidTwitter, window, document) {
 
 
 			
-		for (var i=0; i<ids_el; i++) {
-            elements = getElementsByClass(ids[i]);
+		for (var i=0; i<widgets_len; i++) {
+			var element = widgets[i],
+				ul = document.createElement('ul');
+			removeClass(element, 'widget_twitter--hidden');
 			
-			var elements_length = elements.length;
-
-			for (var j = 0; j < elements_length; j++) {
-				var element = elements[j],
-					ul = document.createElement('ul');
-				removeClass(element, 'widget_twitter--hidden');
-				
-				ul.className = 'tweets';
-				ul.innerHTML = the_html;
-				element.appendChild(ul);
-			}
+			ul.className = 'tweets';
+			ul.innerHTML = the_html;
+			element.appendChild(ul);
 		}
 	}
 	RapidTwitter.callback = callback;
@@ -188,30 +182,6 @@ RapidTwitter.script = function(RapidTwitter, window, document) {
 		return text;
  	}
     
-	function getElementsByClass(get_class_name) {
-		var elements;
-		if (document.getElementsByClassName) {
-			elements = document.getElementsByClassName(get_class_name);
-		}
-		else if (document.querySelectorAll) {
-			elements = document.querySelectorAll('.' + get_class_name);
-		}
-		else {
-			var all = document.getElementsByTagName('*'),
-				all_length = all.length,
-				regexp = new RegExp('(\\s|^)'+get_class_name+'(\\s|$)');
-			elements = new Array();
-			for (var j = 0; j < all_length; j++) {
-				var el = all[j];
-				if ( regexp.test(el.className) ) {
-					elements.push(el);
-				}
-			}
-		}
-		
-		return elements;
-	}
-
 	function removeClass(element, class_name) {
 		var regexp = new RegExp('(\\s|^)'+class_name+'(\\s|$)');
 		element.className = element.className.replace(regexp, ' ');
