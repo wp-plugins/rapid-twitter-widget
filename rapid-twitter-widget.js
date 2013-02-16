@@ -1,8 +1,8 @@
-RapidTwitter= RapidTwitter || {};
+if(typeof(RapidTwitter)=='undefined'){RapidTwitter={};}
 
 RapidTwitter.script = function(RapidTwitter, window, document) {
 	var apis = RapidTwitter.apis,
-		s, i,script_source;
+		i;
 	
 	function callback(api, tweets) {
 		if ( typeof tweets.error != 'undefined' ) {
@@ -13,14 +13,34 @@ RapidTwitter.script = function(RapidTwitter, window, document) {
 			widgets_len = widgets.length,
 			the_html = '';
 
+		the_html = generate_html(api.screen_name, tweets);
+			
+		for (var i=0; i<widgets_len; i++) {
+			var element = widgets[i],
+				ul = document.createElement('ul');
+			element = document.getElementById(element).parentNode;
+			
+			ul.className = 'tweets';
+			ul.innerHTML = the_html;
+			element.appendChild(ul);
 
-		for (var i=0; i<tweets.length; i++) {
+			removeClass(element, 'widget_twitter--hidden');
+		}
+	}
+	RapidTwitter.callback = callback;
+
+	function generate_html(screen_name, tweets){
+		var the_html = '';
+		if ( typeof RapidTwitter.generate_html == 'function' ) {
+			return RapidTwitter.generate_html(screen_name, tweets);
+		}
+		for (var i=0, l=tweets.length; i<l; i++) {
 			var use_tweet = tweets[i], 
 				rt_html = '',
 				classes = ['tweet'];
 
 			if (typeof use_tweet.user.screen_name == 'undefined') {
-				use_tweet.user.screen_name = api.screen_name;
+				use_tweet.user.screen_name = screen_name;
 			}
 
 			if (typeof use_tweet.retweeted_status != 'undefined') {
@@ -73,20 +93,8 @@ RapidTwitter.script = function(RapidTwitter, window, document) {
 			the_html += '</a>';
 			the_html += '</li>';
 		}
-
-
-			
-		for (var i=0; i<widgets_len; i++) {
-			var element = widgets[i],
-				ul = document.createElement('ul');
-			removeClass(element, 'widget_twitter--hidden');
-			
-			ul.className = 'tweets';
-			ul.innerHTML = the_html;
-			element.appendChild(ul);
-		}
+		return the_html;
 	}
-	RapidTwitter.callback = callback;
 
 
 	function relative_time(time_value) {
@@ -120,6 +128,7 @@ RapidTwitter.script = function(RapidTwitter, window, document) {
 			// return (parseInt(delta / 86400)).toString() + ' days ago';
 		}
 	}
+	RapidTwitter.relative_time = relative_time;
 	
 	// source: https://gist.github.com/1292496
 	// Takeru Suzuki
@@ -173,54 +182,19 @@ RapidTwitter.script = function(RapidTwitter, window, document) {
 		result[result.length] = tweet.text.substring(lastIndex);
 		return result.join('');
 	}	
-	function linkify_tweet(text) {
-		var link_exp = /(^|\s)(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-		text = text.replace(link_exp, " <a href='$2'>$2</a> ");
-		text = text.replace(/(^|\s|.)@(\w+)/g, " $1<a href=\"https://twitter.com/$2\">@$2</a> ");
-		text = text.replace(/(^|\s)#(\w+)/g, " $1<a href=\"https://twitter.com/search?q=%23$2&src=hash\">#$2</a> ");
-		text = text.replace(/(^|\s)\$([A-Za-z]+)/g, " $1<a href=\"https://twitter.com/search?q=%24$2&src=ctag\">&#36;$2</a> ");
-		return text;
- 	}
-    
+	RapidTwitter.process_entities = process_entities;
+
 	function removeClass(element, class_name) {
 		var regexp = new RegExp('(\\s|^)'+class_name+'(\\s|$)');
 		element.className = element.className.replace(regexp, ' ');
 	}
 
-	//source: http://dean.edwards.name/weblog/2006/07/enum/
-	// generic enumeration
-	Function.prototype.forEach = function(object, block, context) {
-		for (var key in object) {
-			if (typeof this.prototype[key] == "undefined") {
-				block.call(context, object[key], key, object);
-			}
-		}
-	};
 
-	// globally resolve forEach enumeration
-	var forEach = function(object, block, context) {
-		if (object) {
-			var resolve = Object; // default
-			if (object instanceof Function) {
-				
-				// functions have a "length" property
-				resolve = Function;
-			} 
-			else if (object.forEach instanceof Function) {
-				// the object implements a custom forEach method so use that
-				object.forEach(block, context);
-				return;
-			}
-			else if (typeof object.length == "number") {
-				// the object is array-like
-				resolve = Array;
-			}
-			resolve.forEach(object, block, context);
-		}
-	};
-	
-	
-	forEach (apis, function (api) {
+	for (var key in apis) {
+		var api = apis[key],
+			tw = document.createElement('script'),
+			s, script_source;
+
 		script_source = ('https:' == document.location.protocol ? 'https:' : 'http:');
 		script_source += '//api.twitter.com/1/statuses/user_timeline.json?';
 
@@ -237,27 +211,26 @@ RapidTwitter.script = function(RapidTwitter, window, document) {
 		script_source += api.include_rts;
 		script_source += '&';
 		script_source += 'include_entities=';
-		script_source += 'true';
+		script_source += 't';
 		script_source += '&';
 		script_source += 'trim_user=';
-		script_source += 'true';
+		script_source += 't';
 		script_source += '&';
 		script_source += 'suppress_response_codes=';
-		script_source += 'true';
+		script_source += 't';
 		script_source += '&';
-		script_source += 'callback=RapidTwitter.callback.' + api.ref + '';
+		script_source += 'callback=RapidTwitter.callback.' + key + '';
 
 
-		RapidTwitter.callback[api.ref] = function(tweets) {callback(api,tweets);};
+		RapidTwitter.callback[key] = function(tweets) {callback(api,tweets);};
 
-		var tw = document.createElement('script');
 		tw.type = 'text/javascript';
 		tw.async = true;
 		tw.src = script_source;
 		s = document.getElementsByTagName('script')[0]; 
 		s.parentNode.insertBefore(tw, s);
 
-	});
-	
+
+	}
 	
 }(RapidTwitter, window, document);
