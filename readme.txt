@@ -1,7 +1,7 @@
 === Rapid Twitter Widget ===
 Contributors: peterwilsoncc, floatedesign
 Tags: twitter, widget, tweets
-Stable tag: 1.0
+Stable tag: 1.1
 Requires at least: 3.4.2
 Tested up to: 3.5.1
 License: GPLv2
@@ -20,6 +20,8 @@ Tweets and your content are loaded separately to ensure a delayed response
 from Twitter doesn't slow down your website.
 
 Based upon Wickett Twitter Widget by Automattic (now part of Jetpack).
+
+ADN users might like the [Rapid ADN Widget](http://wordpress.org/extend/plugins/rapid-adn-widget/).
 
 
 == Development on GitHub ==
@@ -82,6 +84,10 @@ nicely [summarised by Nicolas Gallagher](https://gist.github.com/1309546).
 They're a little strange at first but I find them surprisingly useful. 
 
 == Changelog ==
+
+= 1.1 =
+
+* Fixes bug preventing multiple widgets appearing on a single page.
 
 = 0.3.3 =
 
