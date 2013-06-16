@@ -194,11 +194,12 @@ RapidTwitter.script = function(RapidTwitter, window, document) {
 		(function(){
 			var key = outer_key,
 				api = apis[key],
+				config = RapidTwitter_config,
 				tw = document.createElement('script'),
 				s, script_source;
 
-			script_source = ('https:' == document.location.protocol ? 'https:' : 'http:');
-			script_source += '//api.twitter.com/1/statuses/user_timeline.json?';
+			script_source = config.ajaxurl;
+			script_source += '?';
 
 			script_source += 'count=';
 			script_source += api.count;
@@ -221,7 +222,11 @@ RapidTwitter.script = function(RapidTwitter, window, document) {
 			script_source += 'suppress_response_codes=';
 			script_source += 't';
 			script_source += '&';
-			script_source += 'callback=RapidTwitter.callback.' + key + '';
+			script_source += 'callback=' + key;
+			script_source += '&';
+			script_source += 'action=rapid_twitter';
+			script_source += '&';
+			script_source += 's=' + config.sec;
 
 
 			RapidTwitter.callback[key] = function(tweets) {callback(api,tweets);};
