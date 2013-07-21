@@ -3,13 +3,13 @@
 Plugin Name: Rapid Twitter Widget
 Plugin URI: 
 Description: Display the <a href="http://twitter.com/">Twitter</a> latest updates from a Twitter user inside a widget. 
-Version: 1.2
+Version: 1.2.1
 Author: Peter Wilson, Floate Design Partners
 Author URI: 
 License: GPLv2
 */
 
-define('RAPID_TWITTER_WIDGET_VERSION', '1.2');
+define('RAPID_TWITTER_WIDGET_VERSION', '1.2.1');
 
 class Rapid_Twitter_Widget extends WP_Widget {
 
@@ -564,8 +564,8 @@ class Rapid_Twitter_Controller {
 		header('Content-Type: application/javascript;charset=utf-8');
 		
 		$args = array(
-			'screen_name' => $_REQUEST['screen_name'],
-			'count' => $_REQUEST['count'],
+			'screen_name' => urlencode ( $_REQUEST['screen_name'] ),
+			'count' => intval( $_REQUEST['count'] ),
 			'exclude_replies' => $_REQUEST['exclude_replies'],
 			'include_rts' => $_REQUEST['include_rts'],
 			'include_entities' => 't',
@@ -607,7 +607,7 @@ class Rapid_Twitter_Controller {
 				break;
 		}
 		
-		$reference = $_REQUEST['callback'];
+		$reference = sanitize_key( $_REQUEST['callback'] );
 		
 		
 		$tweets = $this->get_twitter_feed( $args );
