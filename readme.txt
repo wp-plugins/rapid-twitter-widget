@@ -1,5 +1,5 @@
 === Rapid Twitter Widget ===
-Contributors: peterwilsoncc, floatedesign
+Contributors: peterwilsoncc
 Tags: twitter, widget, tweets
 Stable tag: 1.0
 Requires at least: 3.4.2
